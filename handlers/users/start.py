@@ -1,5 +1,5 @@
 from time import sleep
-#Dasturchi @Mrgayratov kanla @Kingsofpy
+import requests
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
@@ -13,7 +13,18 @@ from filters.admins import IsAdmin
 from keyboards.inline.main_menu_super_admin import main_menu_for_super_admin, main_menu_for_admin
 from loader import dp, db, bot
 from states.send_chanell import SuperAdminStateChannel
+from utils.files.spotify import SearchFromSpotify
+from utils.files.download_spotify import DownloadMusic
 logging.basicConfig(level=logging.INFO)
+import re,json
+from .tiktok import TikTokDownlaoder
+from tiktok_downloader import snaptik
+from .shazam import ShazamIO
+import os, requests
+from .insta import FastDLAppDownloader
+from utils.files.shazam import shazamtop
+
+
 
 
 @dp.message_handler(IsAdmin(), CommandStart(), state="*")
@@ -43,20 +54,10 @@ youtube_regex = r'(https?:\/\/(?:www\.)?youtube\.com\/watch\?v=[a-zA-Z0-9_-]+)'
     
 
 
-import re,json
-from .tiktok import TikTokDownlaoder
-from tiktok_downloader import snaptik
-from .shazam import ShazamIO
-import os, requests
-from utils.files.saveVid import download_video
-from .insta import FastDLAppDownloader
-from utils.files.shazam import shazamtop
-from utils.files.yt_search import searchYoutube
 
 
 
 
-import requests
 
 async def get_download_url(youtube_url):
     url = f"https://youtube-dl.wave.video/info?url={youtube_url}&type=video"
@@ -91,7 +92,6 @@ async def get_download_url(youtube_url):
 
 
 
-    
 
 @dp.message_handler(content_types=types.ContentTypes.TEXT)
 async def handle_text(message: types.Message):
@@ -104,6 +104,21 @@ async def handle_text(message: types.Message):
             try:
                 await msg_del.delete()
                 await bot.send_document(message.chat.id, vid, caption="Downloaded via @Ultimatedownbot")
+                with open(f"{message.message_id}.mp4", 'wb') as video:
+                    rrr = requests.get(vid)
+                    video.write(rrr.content)
+                input_file = types.InputFile(f"{message.message_id}.mp4")
+                shazammusic = await shazamtop(f"{message.message_id}.mp4")
+                title = shazammusic['title']
+                if title is not None:
+                    musics = SearchFromSpotify(track_name=title, limit=5)
+                    audio_urls = DownloadMusic(musics)
+                inline_kbs = types.InlineKeyboardMarkup()
+                os.remove(f"{message.message_id}.mp4")
+
+
+                    
+                
             except Exception as err:
                 with open(f"{message.message_id}.mp4", 'wb') as video:
                     rrr = requests.get(vid)
@@ -112,7 +127,6 @@ async def handle_text(message: types.Message):
                 await bot.send_document(message.chat.id, document=input_file,caption="Downloaded via @Ultimatedownbot")
                 shazammusic = await shazamtop(f"{message.message_id}.mp4")
                 title = shazammusic['title']
-                links = searchYoutube(f"{title}")
 
 
                 os.remove(f"{message.message_id}.mp4")
@@ -122,7 +136,6 @@ async def handle_text(message: types.Message):
                 video.write(rrr.content)
             shazammusic = await shazamtop(f"{message.message_id}.mp4")
             title = shazammusic['title']
-            links = searchYoutube(f"{title} full music")
 
             os.remove(f"{message.message_id}.mp4")
             
@@ -140,17 +153,12 @@ async def handle_text(message: types.Message):
         os.remove(f"{message.message_id}.mp4")
 
     elif any(substring in text for substring in ["youtube", "youtu.be"]):
+        msg_del = await message.reply("⏳")
+
         try:
             vid = await get_download_url(text)
             await bot.send_video(chat_id=message.chat.id, video=vid, caption="Downloaded via @UltimateDownbot")
         except Exception as err:
-            # vid = await get_download_url(text)
-            # with open(f"{message.message_id}.mp4", "wr") as video:
-            #     rrr=requests.get(vid)
-            #     video.write(rrr.content)
-            #     input_file = types.InputFile(f"{message.message_id}.mp4")
-            #     await bot.send_document(message.chat.id, document=input_file,caption="Downloaded via @Ultimatedownbot")
-            #     os.remove(f"{message.message_id}.mp4")
             await message.answer("<b>I'm so sorry😔. I cant send large files. I cant send quality of 480P</b>")
         get = requests.get("https://saver-uz.onrender.com/youtube/download/audio/?url={}".format(text))
 
