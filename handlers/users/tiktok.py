@@ -47,5 +47,5 @@ def TikTokDownlaoder(url):
 
 # Example usage:
 # url_to_send = input("link > > ")
-# result = send_post_request(url_to_send)
+# result = TikTokDownlaoder(url_to_send)
 # print(result)

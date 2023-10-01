@@ -154,8 +154,8 @@ class InstaDownloader():
 
 
 
-save = InstaDownloader("https://www.instagram.com/p/CxeFKjZIKw8/?utm_source=ig_web_copy_link")
-print(save.DownloadReelPost())
+# save = InstaDownloader("https://www.instagram.com/p/CxeFKjZIKw8/?utm_source=ig_web_copy_link")
+# print(save.DownloadReelPost())
 
 
 import requests,json
